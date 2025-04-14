@@ -166,6 +166,8 @@ public class PlayerController : MonoBehaviour
 
         // Reset state
         isControllingClone = false;
+        camFollow.SetTarget(transform);
+
     }
 
     void OnDrawGizmosSelected()
