@@ -17,4 +17,10 @@ public class MainMenu : MonoBehaviour
         UnityEditor.EditorApplication.isPlaying = false; // Stop play mode if in Unity Editor
         #endif
     }
+
+    public void OpenSettings()
+    {
+        SceneContextManager.CameFrom = SceneContextManager.SourceScene.MainMenu;
+        SceneManager.LoadScene("SettingsScene");
+    }
 }

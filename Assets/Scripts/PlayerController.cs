@@ -178,4 +178,19 @@ public class PlayerController : MonoBehaviour
             Gizmos.DrawWireSphere(groundCheck.position, groundCheckRadius);
         }
     }
+
+    public void ResetClone()
+    {
+        isControllingClone = false;
+
+        // Make sure player is unfrozen
+        rb.bodyType = RigidbodyType2D.Dynamic;
+        rb.linearVelocity = Vector2.zero;
+        camFollow.SetTarget(transform);
+
+        // Clear clone reference
+        activeClone = null;
+        cloneRecorder = null;
+    }
+
 }
