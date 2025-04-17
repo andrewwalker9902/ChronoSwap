@@ -5,6 +5,7 @@ TagManager:
   serializedVersion: 3
   tags:
   - DrawnPlatform
+  - Clone
   layers:
   - Default
   - TransparentFX
