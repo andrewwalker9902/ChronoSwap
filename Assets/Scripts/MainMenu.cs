@@ -3,24 +3,25 @@ using UnityEngine.SceneManagement;
 
 public class MainMenu : MonoBehaviour
 {
-    public void PlayGame()
+    public void NewGame()
     {
-        SceneManager.LoadScene("SampleScene"); // Match your gameplay scene name
-    }
-
-    public void QuitGame()
-    {
-        Application.Quit();
-        Debug.Log("Quit Game!"); // Won't show outside of the editor
-
-        #if UNITY_EDITOR
-        UnityEditor.EditorApplication.isPlaying = false; // Stop play mode if in Unity Editor
-        #endif
+        PlayerPrefs.SetInt("LastLevel", 1);
+        SceneManager.LoadScene("Level1");
     }
 
     public void OpenSettings()
     {
         SceneContextManager.CameFrom = SceneContextManager.SourceScene.MainMenu;
         SceneManager.LoadScene("SettingsScene");
+    }
+
+    public void QuitGame()
+    {
+        Application.Quit();
+        Debug.Log("Quit Game!");
+
+        #if UNITY_EDITOR
+        UnityEditor.EditorApplication.isPlaying = false;
+        #endif
     }
 }

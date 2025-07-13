@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: f4d678463e0f8fa4e864f032b9f1f28a
+guid: 91a3c83eb2671d5439cfa3744fae6f52
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 8295953362633378050
-    second: Yoshimi_Base_Sprite_0
+      213: 4557531739809157206
+    second: Yoshimi_Base_Sprite 1_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -113,7 +113,7 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Yoshimi_Base_Sprite_0
+      name: Yoshimi_Base_Sprite 1_0
       rect:
         serializedVersion: 2
         x: 0
@@ -128,8 +128,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 20948f421a5212370800000000000000
-      internalID: 8295953362633378050
+      spriteID: 65094e378fa9f3f30800000000000000
+      internalID: 4557531739809157206
       vertices: []
       indices: 
       edges: []
@@ -147,7 +147,8 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      Yoshimi_Base_Sprite 1_0: 4557531739809157206
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
