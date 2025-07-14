@@ -1,21 +1,18 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+[RequireComponent(typeof(Rigidbody2D))]
 public class CloneRecorder : MonoBehaviour
 {
-
     private Vector3 startPosition;
     private Rigidbody2D rb;
     public float recordRate = 0.02f;
-    private float playbackTimer = 0f;
-
+    private float recordTimer;
 
     private List<Vector3> recordedPositions = new List<Vector3>();
     private int playbackIndex = 0;
     private bool isRecording = false;
     private bool isPlayingBack = false;
-
-    private float recordTimer;
 
     void Start()
     {
@@ -33,23 +30,20 @@ public class CloneRecorder : MonoBehaviour
                 recordTimer = 0f;
             }
         }
-        else if (isPlayingBack && recordedPositions.Count > 0)
-        {
-            playbackTimer += Time.deltaTime;
+    }
 
-            if (playbackTimer >= recordRate)
-            {
-                transform.position = recordedPositions[playbackIndex];
-                playbackIndex++;
-                playbackTimer = 0f;
-            }
+    void FixedUpdate()
+    {
+        if (isPlayingBack && playbackIndex < recordedPositions.Count)
+        {
+            rb.MovePosition(recordedPositions[playbackIndex]);
+            playbackIndex++;
 
             if (playbackIndex >= recordedPositions.Count)
             {
                 isPlayingBack = false;
             }
         }
-
     }
 
     public void StartRecording()
@@ -61,7 +55,10 @@ public class CloneRecorder : MonoBehaviour
         playbackIndex = 0;
 
         if (rb != null)
-            rb.bodyType = RigidbodyType2D.Dynamic;
+        {
+            rb.bodyType = RigidbodyType2D.Kinematic;
+            rb.interpolation = RigidbodyInterpolation2D.Interpolate;
+        }
     }
 
     public void StopRecording()
@@ -71,12 +68,17 @@ public class CloneRecorder : MonoBehaviour
 
     public void StartPlayback()
     {
-        if (rb != null)
-            rb.bodyType = RigidbodyType2D.Dynamic;
+        if (recordedPositions.Count == 0) return;
 
+        if (rb != null)
+        {
+            rb.bodyType = RigidbodyType2D.Kinematic;
+            rb.interpolation = RigidbodyInterpolation2D.Interpolate;
+        }
+
+        isRecording = false;
         isPlayingBack = true;
         playbackIndex = 0;
-        playbackTimer = 0f;
     }
 
     public void Freeze()
@@ -84,24 +86,19 @@ public class CloneRecorder : MonoBehaviour
         isRecording = false;
         isPlayingBack = false;
 
-        // Reset position to starting point
         transform.position = startPosition;
 
-        // Fully stop motion
         if (rb != null)
         {
-            rb.linearVelocity = Vector2.zero;
+            rb.linearVelocity = Vector2.zero; // Updated to use linearVelocity instead of velocity  
             rb.angularVelocity = 0f;
             rb.bodyType = RigidbodyType2D.Static;
         }
 
-        // Make sure controller is disabled
-        CloneController cloneController = GetComponent<CloneController>();
+        var cloneController = GetComponent<CloneController>();
         if (cloneController != null)
         {
             cloneController.isControllable = false;
         }
     }
-
-
 }

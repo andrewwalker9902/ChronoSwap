@@ -41,6 +41,9 @@ public class PauseMenuUI : MonoBehaviour
     {
         Time.timeScale = 1f;
         playerController.ResetGame(); // Call your existing method
+
+        ElevatorMover.ResetAllElevators();
+
         pauseMenuUI.SetActive(false);
         isPaused = false;
     }

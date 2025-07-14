@@ -1,0 +1,74 @@
+using UnityEngine;
+
+public class ElevatorMover : MonoBehaviour
+{
+    public Transform targetPoint;
+    public float moveSpeed = 2f;
+    public ButtonTrigger[] linkedButtons;
+    public bool requireBoth = false;
+
+    private float lastPlayerPressTime = -10f;
+    private float lastClonePressTime = -10f;
+    public float pressWindow = 1f; // time window in seconds
+
+    private Vector3 startPos;
+    private bool isMoving = false;
+    private bool goingUp = false;
+
+    void Start()
+    {
+        startPos = transform.position;
+    }
+
+    void Update()
+    {
+        if (isMoving && targetPoint != null)
+        {
+            Vector3 destination = goingUp ? targetPoint.position : startPos;
+            transform.position = Vector3.MoveTowards(transform.position, destination, moveSpeed * Time.deltaTime);
+
+            if (transform.position == destination)
+            {
+                isMoving = false;
+            }
+        }
+    }
+
+    public void NotifyPress(string tag, float time)
+    {
+        if (tag == "Player")
+            lastPlayerPressTime = time;
+        else if (tag == "Clone")
+            lastClonePressTime = time;
+
+        bool withinWindow = Mathf.Abs(lastPlayerPressTime - lastClonePressTime) <= pressWindow;
+
+        bool validCombo = requireBoth ? withinWindow : true;
+
+        if (validCombo && !isMoving)
+        {
+            isMoving = true;
+            goingUp = !goingUp;
+        }
+    }
+
+
+    public void ResetElevator()
+    {
+        isMoving = false;
+        goingUp = false;
+        transform.position = startPos;
+        lastPlayerPressTime = -10f;
+        lastClonePressTime = -10f;
+    }
+
+    public static void ResetAllElevators()
+    {
+        ElevatorMover[] elevators = FindObjectsByType<ElevatorMover>(FindObjectsSortMode.None);
+        foreach (ElevatorMover elevator in elevators)
+        {
+            elevator.ResetElevator();
+        }
+    }
+
+}
