@@ -156,11 +156,7 @@ public class PlayerController : MonoBehaviour
             cloneRecorder = null;
         }
 
-        ElevatorMover[] elevators = FindObjectsByType<ElevatorMover>(FindObjectsSortMode.None);
-        foreach (ElevatorMover elevator in elevators)
-        {
-            elevator.ResetElevator();
-        }
+        ElevatorMover.ResetAllElevators();
 
         // Reset player position
         transform.position = startingPosition;
