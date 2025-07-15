@@ -20,7 +20,7 @@ public class HoldButtonTrigger : MonoBehaviour
             if (activeTags.Add(other.tag))
             {
                 if (animator != null)
-                    animator.Play("ButtonPress");
+                    animator.Play("RedButtonPress");
 
                 foreach (var obj in linkedObjects)
                 {
@@ -41,14 +41,16 @@ public class HoldButtonTrigger : MonoBehaviour
             if (activeTags.Remove(other.tag))
             {
                 if (activeTags.Count == 0 && animator != null)
-                    animator.Play("ButtonRelease");
+                { 
+                    animator.Play("RedButtonRelease");
 
-                foreach (var obj in linkedObjects)
-                {
-                    IInteractable interactable = obj as IInteractable;
-                    if (interactable != null)
+                    foreach (var obj in linkedObjects)
                     {
-                        interactable.NotifyRelease(other.tag);
+                        IInteractable interactable = obj as IInteractable;
+                        if (interactable != null)
+                        {
+                            interactable.NotifyRelease(other.tag);
+                        }
                     }
                 }
             }
