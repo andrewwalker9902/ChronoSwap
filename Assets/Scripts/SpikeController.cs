@@ -10,7 +10,7 @@ public class SpikeController : MonoBehaviour
             PlayerController player = other.GetComponent<PlayerController>();
             if (player != null)
             {
-                player.ResetGame(); // Reuse your existing reset logic
+                player.ResetPlayerAtAnchor(); // Reuse your existing reset logic
             }
         }
 

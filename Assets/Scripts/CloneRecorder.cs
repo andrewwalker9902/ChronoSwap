@@ -79,6 +79,10 @@ public class CloneRecorder : MonoBehaviour
         isRecording = false;
         isPlayingBack = true;
         playbackIndex = 0;
+
+        var controller = GetComponent<CloneController>();
+        if (controller != null)
+            controller.isPlayingBack = true;
     }
 
     public void Freeze()
@@ -90,15 +94,16 @@ public class CloneRecorder : MonoBehaviour
 
         if (rb != null)
         {
-            rb.linearVelocity = Vector2.zero; // Updated to use linearVelocity instead of velocity  
+            rb.linearVelocity = Vector2.zero;
             rb.angularVelocity = 0f;
             rb.bodyType = RigidbodyType2D.Static;
         }
 
-        var cloneController = GetComponent<CloneController>();
-        if (cloneController != null)
+        var controller = GetComponent<CloneController>();
+        if (controller != null)
         {
-            cloneController.isControllable = false;
+            controller.isControllable = false;
+            controller.isPlayingBack = false; // reset playback flag
         }
     }
 }

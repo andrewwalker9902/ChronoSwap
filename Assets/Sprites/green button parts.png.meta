@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: b3d6f940ce706d441950a5efd2a93d54
+guid: cd6ce2fe3caf6d54282718b76c32f548
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -5623194428626525839
-    second: test_0
+      213: -419574358319509956
+    second: green button parts_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -113,13 +113,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: test_0
+      name: green button parts_0
       rect:
         serializedVersion: 2
-        x: 0
-        y: 31
-        width: 64
-        height: 33
+        x: 16
+        y: 32
+        width: 16
+        height: 16
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -128,8 +128,30 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 171a2cac57666f1b0800000000000000
-      internalID: -5623194428626525839
+      spriteID: c3ec087185f5d2af0800000000000000
+      internalID: -419574358319509956
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: green button parts_1
+      rect:
+        serializedVersion: 2
+        x: 32
+        y: 32
+        width: 16
+        height: 16
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 8a1e9979fc0e130419c84bc975546bc0
+      internalID: 2113516629
       vertices: []
       indices: 
       edges: []
@@ -138,7 +160,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 
+    spriteID: 3f55c7e4a75c93f4ea3124588542cc50
     internalID: 0
     vertices: []
     indices: 
@@ -148,7 +170,8 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      test_0: -5623194428626525839
+      green button parts_0: -419574358319509956
+      green button parts_1: 2113516629
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: b3d6f940ce706d441950a5efd2a93d54
+guid: f564f1a360b62ee44a0ed3f586869e1e
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -5623194428626525839
-    second: test_0
+      213: -1082565959697346574
+    second: respawnpylon_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -113,13 +113,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: test_0
+      name: respawnpylon_0
       rect:
         serializedVersion: 2
-        x: 0
-        y: 31
-        width: 64
-        height: 33
+        x: 16
+        y: 32
+        width: 16
+        height: 16
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -128,8 +128,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 171a2cac57666f1b0800000000000000
-      internalID: -5623194428626525839
+      spriteID: 2ff4f4ecef3f9f0f0800000000000000
+      internalID: -1082565959697346574
       vertices: []
       indices: 
       edges: []
@@ -138,7 +138,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 
+    spriteID: 18785ffd4ddd6f5488fd880ec4cb88b5
     internalID: 0
     vertices: []
     indices: 
@@ -148,7 +148,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      test_0: -5623194428626525839
+      respawnpylon_0: -1082565959697346574
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

@@ -26,6 +26,8 @@ public class PlayerController : MonoBehaviour
     private Rigidbody2D rb;
     private bool isGrounded;
     private Vector3 startingPosition;
+    private bool isFrozen = false;
+    private Vector3 respawnPoint;
 
     private CameraFollow camFollow;
 
@@ -33,15 +35,21 @@ public class PlayerController : MonoBehaviour
     {
         rb = GetComponent<Rigidbody2D>();
         startingPosition = transform.position;
+        respawnPoint = startingPosition;
         camFollow = Camera.main.GetComponent<CameraFollow>();
         camFollow.SetTarget(transform); // Start following player
+    }
+
+    public void SetRespawnPoint(Vector3 newPoint)
+    {
+        respawnPoint = newPoint;
     }
 
     void Update()
     {
         HandleInputs();
 
-        if (!isControllingClone)
+        if (!isControllingClone && !isFrozen)
         {
             HandleMovement();
         }
@@ -53,63 +61,88 @@ public class PlayerController : MonoBehaviour
         {
             if (!isControllingClone)
             {
-
-                if (activeClone != null)
-                {
-                    Destroy(activeClone);
-                    activeClone = null;
-                    cloneRecorder = null;
-                }
-                // Enter clone mode
-                activeClone = Instantiate(clonePrefab, transform.position, Quaternion.identity);
-                cloneRecorder = activeClone.GetComponent<CloneRecorder>();
-                cloneRecorder.StartRecording();
-                camFollow.SetTarget(activeClone.transform);
-
-                CloneController cloneController = activeClone.GetComponent<CloneController>();
-                if (cloneController != null)
-                {
-                    cloneController.isControllable = true;
-                }
-
-                Rigidbody2D cloneRB = activeClone.GetComponent<Rigidbody2D>();
-                if (cloneRB != null)
-                {
-                    cloneRB.bodyType = RigidbodyType2D.Dynamic;
-                    cloneRB.linearVelocity = Vector2.zero;
-                }
-
-                isControllingClone = true;
-
-                // Freeze player
-                rb.linearVelocity = Vector2.zero;
-                rb.bodyType = RigidbodyType2D.Static;
+                EnterCloneMode();
             }
             else
             {
-                // Exit clone mode
-                if (cloneRecorder != null)
-                {
-                    cloneRecorder.StopRecording();
-                    cloneRecorder.Freeze();
-                }
-
-                isControllingClone = false;
-
-                // Unfreeze player
-                rb.bodyType = RigidbodyType2D.Dynamic;
-                camFollow.SetTarget(transform);
+                ExitCloneMode();
             }
         }
 
         if (Input.GetKeyDown(KeyCode.C))
         {
-            if (cloneRecorder != null)
-            {
-                cloneRecorder.StartPlayback();
-            }
+            StartClonePlayback();
         }
     }
+
+
+    void EnterCloneMode()
+    {
+        if (activeClone != null)
+        {
+            Destroy(activeClone);
+            activeClone = null;
+            cloneRecorder = null;
+        }
+
+        activeClone = Instantiate(clonePrefab, transform.position, Quaternion.identity);
+        cloneRecorder = activeClone.GetComponent<CloneRecorder>();
+        cloneRecorder.StartRecording();
+        camFollow.SetTarget(activeClone.transform);
+
+        CloneController cloneController = activeClone.GetComponent<CloneController>();
+        if (cloneController != null)
+        {
+            cloneController.isControllable = true;
+        }
+
+        Rigidbody2D cloneRB = activeClone.GetComponent<Rigidbody2D>();
+        if (cloneRB != null)
+        {
+            cloneRB.bodyType = RigidbodyType2D.Dynamic;
+            cloneRB.linearVelocity = Vector2.zero;
+        }
+
+        isControllingClone = true;
+        FreezePlayer();
+    }
+
+    void ExitCloneMode()
+    {
+        if (cloneRecorder != null)
+        {
+            cloneRecorder.StopRecording();
+            cloneRecorder.Freeze();
+        }
+
+        isControllingClone = false;
+        UnfreezePlayer();
+        camFollow.SetTarget(transform);
+    }
+
+    void StartClonePlayback()
+    {
+        if (cloneRecorder != null)
+        {
+            cloneRecorder.StartPlayback();
+        }
+    }
+
+    void FreezePlayer()
+    {
+        isFrozen = true;
+        rb.linearVelocity = Vector2.zero;
+        rb.gravityScale = 0f;
+    }
+
+    void UnfreezePlayer()
+    {
+        isFrozen = false;
+        rb.bodyType = RigidbodyType2D.Dynamic;
+        camFollow.SetTarget(transform);
+        rb.gravityScale = 1f; // Or use `originalGravity` if you stored it
+    }
+
 
     void HandleMovement()
     {
@@ -146,7 +179,7 @@ public class PlayerController : MonoBehaviour
 
     }
 
-    public void ResetGame()
+    public void ResetPlayerAtAnchor()
     {
         // Destroy clone if it exists
         if (activeClone != null)
@@ -158,13 +191,12 @@ public class PlayerController : MonoBehaviour
 
         ElevatorMover.ResetAllElevators();
 
+
         // Reset player position
-        transform.position = startingPosition;
+        transform.position = respawnPoint;
 
         // Unfreeze player
-        rb.bodyType = RigidbodyType2D.Dynamic;
-        rb.linearVelocity = Vector2.zero;
-        rb.angularVelocity = 0f;
+        UnfreezePlayer();
 
         // Reset state
         isControllingClone = false;

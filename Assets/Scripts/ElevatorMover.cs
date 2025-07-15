@@ -1,15 +1,15 @@
 using UnityEngine;
 
-public class ElevatorMover : MonoBehaviour
+public class ElevatorMover : MonoBehaviour, IInteractable
 {
     public Transform targetPoint;
     public float moveSpeed = 2f;
-    public ButtonTrigger[] linkedButtons;
+    public HoldButtonTrigger[] linkedButtons;
     public bool requireBoth = false;
 
     private float lastPlayerPressTime = -10f;
     private float lastClonePressTime = -10f;
-    public float pressWindow = 1f; // time window in seconds
+    public float pressWindow = 1f;
 
     private Vector3 startPos;
     private bool isMoving = false;
@@ -22,27 +22,24 @@ public class ElevatorMover : MonoBehaviour
 
     void Update()
     {
-        if (isMoving && targetPoint != null)
-        {
-            Vector3 destination = goingUp ? targetPoint.position : startPos;
-            transform.position = Vector3.MoveTowards(transform.position, destination, moveSpeed * Time.deltaTime);
+        Vector3 destination = goingUp ? targetPoint.position : startPos;
 
-            if (transform.position == destination)
-            {
-                isMoving = false;
-            }
+        if (transform.position != destination)
+        {
+            transform.position = Vector3.MoveTowards(transform.position, destination, moveSpeed * Time.deltaTime);
         }
     }
 
-    public void NotifyPress(string tag, float time)
+    // Implements IInteractable
+    public void NotifyPress(string tag, float timestamp)
     {
+
         if (tag == "Player")
-            lastPlayerPressTime = time;
+            lastPlayerPressTime = timestamp;
         else if (tag == "Clone")
-            lastClonePressTime = time;
+            lastClonePressTime = timestamp;
 
         bool withinWindow = Mathf.Abs(lastPlayerPressTime - lastClonePressTime) <= pressWindow;
-
         bool validCombo = requireBoth ? withinWindow : true;
 
         if (validCombo && !isMoving)
@@ -52,6 +49,16 @@ public class ElevatorMover : MonoBehaviour
         }
     }
 
+    // Implements IInteractable
+    public void NotifyRelease(string tag)
+    {
+
+        if (isMoving)
+        {
+            isMoving = false;
+            goingUp = false;
+        }
+    }
 
     public void ResetElevator()
     {
@@ -70,5 +77,4 @@ public class ElevatorMover : MonoBehaviour
             elevator.ResetElevator();
         }
     }
-
 }

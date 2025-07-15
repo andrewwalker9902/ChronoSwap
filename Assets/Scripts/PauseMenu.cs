@@ -40,7 +40,7 @@ public class PauseMenuUI : MonoBehaviour
     public void Restart()
     {
         Time.timeScale = 1f;
-        playerController.ResetGame(); // Call your existing method
+        playerController.ResetPlayerAtAnchor(); // Call your existing method
 
         ElevatorMover.ResetAllElevators();
 

@@ -18,6 +18,7 @@ public class CloneController : MonoBehaviour
     private Rigidbody2D rb;
     private bool isGrounded;
     public bool isControllable = false; // Only move if allowed
+    public bool isPlayingBack = false; // Add this
 
     void Start()
     {

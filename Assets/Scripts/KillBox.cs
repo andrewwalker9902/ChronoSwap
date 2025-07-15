@@ -10,7 +10,7 @@ public class KillBox : MonoBehaviour
             PlayerController player = other.GetComponent<PlayerController>();
             if (player != null)
             {
-                player.ResetGame(); // Your existing reset method
+                player.ResetPlayerAtAnchor(); // Your existing reset method
             }
         }
 
