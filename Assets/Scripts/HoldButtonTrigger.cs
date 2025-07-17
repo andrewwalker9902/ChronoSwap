@@ -13,7 +13,7 @@ public class HoldButtonTrigger : MonoBehaviour
         animator = GetComponentInChildren<Animator>();
     }
 
-    private void OnTriggerStay2D(Collider2D other)
+    private void OnTriggerEnter2D(Collider2D other)
     {
         if (IsValidInteractor(other))
         {
@@ -64,6 +64,8 @@ public class HoldButtonTrigger : MonoBehaviour
             // Always allow the player, even if frozen
             return true;
         }
+        if (other.CompareTag("PushBox"))
+            return true;
         else if (other.CompareTag("Clone"))
         {
             var controller = other.GetComponent<CloneController>();
@@ -77,6 +79,17 @@ public class HoldButtonTrigger : MonoBehaviour
         return false;
     }
 
+    public bool IsPressed()
+    {
+        return activeTags.Count > 0;
+    }
+
+    public HashSet<string> GetActiveTags()
+    {
+        return new HashSet<string>(activeTags);
+    }
+
     public bool HasPlayer() => activeTags.Contains("Player");
     public bool HasClone() => activeTags.Contains("Clone");
+    public bool HasPushBox() => activeTags.Contains("PushBox");
 }

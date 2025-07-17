@@ -6,9 +6,11 @@ public class ElevatorMover : MonoBehaviour, IInteractable
     public float moveSpeed = 2f;
     public HoldButtonTrigger[] linkedButtons;
     public bool requireBoth = false;
+    public bool requireTiming = false;
 
     private float lastPlayerPressTime = -10f;
     private float lastClonePressTime = -10f;
+    private float lastPushBoxPressTime = -10f;
     public float pressWindow = 1f;
 
     private Vector3 startPos;
@@ -33,15 +35,37 @@ public class ElevatorMover : MonoBehaviour, IInteractable
     // Implements IInteractable
     public void NotifyPress(string tag, float timestamp)
     {
-
         if (tag == "Player")
             lastPlayerPressTime = timestamp;
         else if (tag == "Clone")
             lastClonePressTime = timestamp;
+        else if (tag == "PushBox")
+            lastPushBoxPressTime = timestamp;
 
         bool withinWindow = Mathf.Abs(lastPlayerPressTime - lastClonePressTime) <= pressWindow;
-        bool validCombo = requireBoth ? withinWindow : true;
-
+        bool validCombo;
+        if (requireBoth && requireTiming)
+        {
+            validCombo = withinWindow;
+        }
+        else if (requireBoth)
+        {
+            int pressedButtonCount = 0;
+            foreach (var button in linkedButtons)
+            {
+                if (button != null && button.IsPressed())
+                    pressedButtonCount++;
+            }
+            validCombo = pressedButtonCount >= 2;
+        }
+        else if (requireTiming)
+        {
+            validCombo = withinWindow;
+        }
+        else
+        {
+            validCombo = true; // No requirements, always valid
+        }
         if (validCombo && !isMoving)
         {
             isMoving = true;
