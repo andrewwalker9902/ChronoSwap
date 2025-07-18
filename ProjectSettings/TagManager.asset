@@ -6,6 +6,7 @@ TagManager:
   tags:
   - DrawnPlatform
   - Clone
+  - PushBox
   layers:
   - Default
   - TransparentFX

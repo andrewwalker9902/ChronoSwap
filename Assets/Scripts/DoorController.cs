@@ -101,4 +101,25 @@ public class DoorController : MonoBehaviour, IInteractable
             col.enabled = true;
         isOpen = false;
     }
+
+    public void ResetDoor()
+    {
+        if (animator != null)
+        {
+            animator.SetBool("Open", false); // Ensure the parameter is set for future transitions
+            animator.Play("DoorIdle", 0, 0f); // Snap to the DoorIdle state
+        }
+        if (col != null)
+            col.enabled = true;
+        isOpen = false;
+    }
+
+    public static void ResetAllDoors()
+    {
+        DoorController[] doors = FindObjectsByType<DoorController>(FindObjectsSortMode.None);
+        foreach (var door in doors)
+        {
+            door.ResetDoor();
+        }
+    }
 }

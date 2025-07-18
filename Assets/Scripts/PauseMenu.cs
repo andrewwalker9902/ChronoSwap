@@ -43,6 +43,8 @@ public class PauseMenuUI : MonoBehaviour
         playerController.ResetPlayerAtAnchor(); // Call your existing method
 
         ElevatorMover.ResetAllElevators();
+        PushBoxController.ResetAllBoxPosition();
+        DoorController.ResetAllDoors();
 
         pauseMenuUI.SetActive(false);
         isPaused = false;
