@@ -6,17 +6,13 @@ public class PistonController : MonoBehaviour, IInteractable
     public Transform targetPoint;
     public float resetmoveSpeed = 2f;
     public float smashMoveSpeed = 5f;
-    public float delayAtEnds = 0.5f; // Delay in seconds at each end
-    public HoldButtonTrigger[] linkedButtons;
-    public bool requireBoth = false;
-    public bool requireTiming = false;
+    public float delayAtEnds = 0.5f;
     public bool isToggleButton = false;
-    public bool smashesUpward = false; // Set in Inspector for each piston
-    private bool atEndPoint = false;
+    public bool startPoweredOn = true; // <-- Add this line
 
     private Vector3 startPos;
     private Coroutine pistonRoutine;
-    public bool poweredOn = true;
+    private bool poweredOn = true;
     private Rigidbody2D rb;
     private Vector3 moveTarget;
     private float moveSpeed;
@@ -26,7 +22,11 @@ public class PistonController : MonoBehaviour, IInteractable
     {
         startPos = transform.position;
         rb = GetComponent<Rigidbody2D>();
-        PowerOn();
+
+        if (startPoweredOn)
+            PowerOn();
+        else
+            PowerOff();
     }
 
     void FixedUpdate()
@@ -40,6 +40,33 @@ public class PistonController : MonoBehaviour, IInteractable
             {
                 rb.MovePosition(moveTarget);
                 isMoving = false;
+            }
+
+            // After moving, check for crush on all overlapping players/clones
+            Collider2D pistonCol = GetComponent<Collider2D>();
+            if (pistonCol != null)
+            {
+                Collider2D[] hits = Physics2D.OverlapBoxAll(
+                    pistonCol.bounds.center,
+                    pistonCol.bounds.size,
+                    0f
+                );
+
+                foreach (var hit in hits)
+                {
+                    if (hit.CompareTag("Player"))
+                    {
+                        PlayerController pc = hit.GetComponent<PlayerController>();
+                        if (pc != null)
+                            pc.CheckCrush();
+                    }
+                    else if (hit.CompareTag("Clone"))
+                    {
+                        // If your clone has a similar crush check, call it here
+                        // CloneController cc = hit.GetComponent<CloneController>();
+                        // if (cc != null) cc.CheckCrush();
+                    }
+                }
             }
         }
     }
@@ -64,7 +91,6 @@ public class PistonController : MonoBehaviour, IInteractable
         pistonRoutine = null;
     }
 
-    // Example method to start a move
     IEnumerator MoveTo(Vector3 destination, float speed)
     {
         moveTarget = destination;
@@ -72,53 +98,6 @@ public class PistonController : MonoBehaviour, IInteractable
         isMoving = true;
         while (isMoving)
             yield return new WaitForFixedUpdate();
-        if (smashesUpward && destination == targetPoint.position)
-            atEndPoint = true;
-        else
-            atEndPoint = false;
-    }
-
-    public void OnKillZoneTriggered(PistonKillZone.KillZoneType zoneType, GameObject player)
-    {
-        if (smashesUpward)
-        {
-            // Only kill if at endpoint and hit top
-            if (zoneType == PistonKillZone.KillZoneType.Top && atEndPoint)
-            {
-                KillPlayer(player);
-            }
-        }
-        else
-        {
-            // Downward piston: kill if hit bottom at any time
-            if (zoneType == PistonKillZone.KillZoneType.Bottom)
-            {
-                KillPlayer(player);
-            }
-        }
-    }
-
-    private void KillPlayer(GameObject obj)
-    {
-        if (obj.CompareTag("Player"))
-        {
-            PlayerController player = obj.GetComponent<PlayerController>();
-            if (player != null)
-            {
-                player.ResetPlayerAtAnchor();
-            }
-        }
-        else if (obj.CompareTag("Clone"))
-        {
-            Destroy(obj);
-
-            // Return camera and control to the player
-            PlayerController player = Object.FindFirstObjectByType<PlayerController>();
-            if (player != null)
-            {
-                player.ResetClone();
-            }
-        }
     }
 
     private void PowerOn()
@@ -166,18 +145,14 @@ public class PistonController : MonoBehaviour, IInteractable
             if (!poweredOn)
                 PowerOn();
         }
-        // Toggle button: do nothing on release
     }
 
-    public void OnPlayerOnTop(GameObject player)
+    public void PlayerOnTop(GameObject player)
     {
-        if (!smashesUpward)
+        Rigidbody2D rb = player.GetComponent<Rigidbody2D>();
+        if (rb != null && rb.linearVelocity.y > 0)
         {
-            Rigidbody2D rb = player.GetComponent<Rigidbody2D>();
-            if (rb != null && rb.linearVelocity.y > 0)
-            {
-                rb.linearVelocity = new Vector2(rb.linearVelocity.x, 0f);
-            }
+            rb.linearVelocity = new Vector2(rb.linearVelocity.x, 0f);
         }
     }
 }

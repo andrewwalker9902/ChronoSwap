@@ -181,6 +181,9 @@ public class PlayerController : MonoBehaviour
 
     public void ResetPlayerAtAnchor()
     {
+        // Reset velocity to prevent momentum carry-over
+        rb.linearVelocity = Vector2.zero;
+
         // Destroy clone if it exists
         if (activeClone != null)
         {
@@ -191,7 +194,6 @@ public class PlayerController : MonoBehaviour
 
         ElevatorMover.ResetAllElevators();
 
-
         // Reset player position
         transform.position = respawnPoint;
 
@@ -201,7 +203,6 @@ public class PlayerController : MonoBehaviour
         // Reset state
         isControllingClone = false;
         camFollow.SetTarget(transform);
-
     }
 
     void OnDrawGizmosSelected()
@@ -225,6 +226,37 @@ public class PlayerController : MonoBehaviour
         // Clear clone reference
         activeClone = null;
         cloneRecorder = null;
+
+        UnfreezePlayer();
+    }
+
+    public void CheckCrush()
+    {
+        // Get all colliders overlapping the player
+        Collider2D[] overlaps = Physics2D.OverlapBoxAll(
+            GetComponent<Collider2D>().bounds.center,
+            GetComponent<Collider2D>().bounds.size * 0.95f, // slightly smaller to avoid false positives
+            0f
+        );
+
+        bool touchingGround = false;
+        bool touchingMoving = false;
+
+        foreach (var col in overlaps)
+        {
+            if (col == null || col == GetComponent<Collider2D>())
+                continue;
+            if (col.CompareTag("Ground"))
+                touchingGround = true;
+            // Tag all moving objects (pistons, doors, etc.) as "Moving"
+            if (col.CompareTag("Moving"))
+                touchingMoving = true;
+        }
+
+        if (touchingGround && touchingMoving)
+        {
+            ResetPlayerAtAnchor();
+        }
     }
 
 }

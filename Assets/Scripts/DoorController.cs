@@ -14,7 +14,7 @@ public class DoorController : MonoBehaviour, IInteractable
 
     private void Start()
     {
-        col = GetComponent<Collider2D>();
+        col = GetComponentInChildren<Collider2D>();
         animator = GetComponentInChildren<Animator>();
     }
 
