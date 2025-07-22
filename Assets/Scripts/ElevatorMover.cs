@@ -8,9 +8,6 @@ public class ElevatorMover : MonoBehaviour, IInteractable
     public bool requireBoth = false;
     public bool requireTiming = false;
 
-    private float lastPlayerPressTime = -10f;
-    private float lastClonePressTime = -10f;
-    private float lastPushBoxPressTime = -10f;
     public float pressWindow = 1f;
 
     private Vector3 startPos;
@@ -30,23 +27,43 @@ public class ElevatorMover : MonoBehaviour, IInteractable
         {
             transform.position = Vector3.MoveTowards(transform.position, destination, moveSpeed * Time.deltaTime);
         }
+
+        // After moving, check for crush on all overlapping players/clones
+        Collider2D elevatorCol = GetComponent<Collider2D>();
+        if (elevatorCol != null)
+        {
+            Collider2D[] hits = Physics2D.OverlapBoxAll(
+                elevatorCol.bounds.center,
+                elevatorCol.bounds.size,
+                0f
+            );
+
+            foreach (var hit in hits)
+            {
+                if (hit.CompareTag("Player"))
+                {
+                    PlayerController pc = hit.GetComponent<PlayerController>();
+                    if (pc != null)
+                        pc.CheckCrush();
+                }
+                else if (hit.CompareTag("Clone"))
+                {
+                    // If your clone has a similar crush check, call it here
+                    // CloneController cc = hit.GetComponent<CloneController>();
+                    // if (cc != null) cc.CheckCrush();
+                }
+            }
+        }
+
     }
 
     // Implements IInteractable
     public void NotifyPress(string tag, float timestamp)
     {
-        if (tag == "Player")
-            lastPlayerPressTime = timestamp;
-        else if (tag == "Clone")
-            lastClonePressTime = timestamp;
-        else if (tag == "PushBox")
-            lastPushBoxPressTime = timestamp;
-
-        bool withinWindow = Mathf.Abs(lastPlayerPressTime - lastClonePressTime) <= pressWindow;
         bool validCombo;
         if (requireBoth && requireTiming)
         {
-            validCombo = withinWindow;
+            validCombo = AreTwoButtonsPressedWithinWindow();
         }
         else if (requireBoth)
         {
@@ -58,10 +75,6 @@ public class ElevatorMover : MonoBehaviour, IInteractable
             }
             validCombo = pressedButtonCount >= 2;
         }
-        else if (requireTiming)
-        {
-            validCombo = withinWindow;
-        }
         else
         {
             validCombo = true; // No requirements, always valid
@@ -71,6 +84,38 @@ public class ElevatorMover : MonoBehaviour, IInteractable
             isMoving = true;
             goingUp = !goingUp;
         }
+    }
+
+    private bool AreTwoButtonsPressedWithinWindow()
+    {
+        if (linkedButtons == null || linkedButtons.Length < 2)
+            return false;
+
+        float firstTime = -1000f;
+        float secondTime = -1000f;
+        bool foundFirst = false;
+
+        foreach (var button in linkedButtons)
+        {
+            if (button != null && button.IsPressed())
+            {
+                // Get the most recent press time for this button
+                float buttonTime = button.GetLastPressTime();
+                if (!foundFirst)
+                {
+                    firstTime = buttonTime;
+                    foundFirst = true;
+                }
+                else
+                {
+                    secondTime = buttonTime;
+                    // Check if within window
+                    if (Mathf.Abs(firstTime - secondTime) <= pressWindow)
+                        return true;
+                }
+            }
+        }
+        return false;
     }
 
     // Implements IInteractable
@@ -89,8 +134,6 @@ public class ElevatorMover : MonoBehaviour, IInteractable
         isMoving = false;
         goingUp = false;
         transform.position = startPos;
-        lastPlayerPressTime = -10f;
-        lastClonePressTime = -10f;
     }
 
     public static void ResetAllElevators()

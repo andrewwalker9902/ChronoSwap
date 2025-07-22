@@ -7,6 +7,7 @@ public class HoldButtonTrigger : MonoBehaviour
 
     private HashSet<string> activeTags = new(); // Tracks who is pressing
     private Animator animator;
+    private float lastPressTime = -1000f;
 
     private void Start()
     {
@@ -19,6 +20,7 @@ public class HoldButtonTrigger : MonoBehaviour
         {
             if (activeTags.Add(other.tag))
             {
+                lastPressTime = Time.time;
                 if (animator != null)
                     animator.Play("RedButtonPress");
 
@@ -55,6 +57,11 @@ public class HoldButtonTrigger : MonoBehaviour
                 }
             }
         }
+    }
+
+    public float GetLastPressTime()
+    {
+        return lastPressTime;
     }
 
     private bool IsValidInteractor(Collider2D other)

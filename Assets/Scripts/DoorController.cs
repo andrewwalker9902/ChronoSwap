@@ -3,19 +3,61 @@ using System.Collections.Generic;
 
 public class DoorController : MonoBehaviour, IInteractable
 {
-    private Collider2D col;
-    private Animator animator;
-    public bool isOpen = false;
-
-    public bool isToggleButton = false;
-
+    public Transform targetPoint;
+    public float moveSpeed = 5f;
     public HoldButtonTrigger[] linkedButtons;
     public bool requireBoth = false;
+    public bool requireTiming = false;
+    public bool isToggleButton = false;
 
-    private void Start()
+    private Vector3 startPos;
+    private bool isMoving = false;
+    private bool isOpen = false;
+
+    private Collider2D col;
+    private Animator animator;
+
+    void Start()
     {
+        startPos = transform.position;
         col = GetComponentInChildren<Collider2D>();
         animator = GetComponentInChildren<Animator>();
+    }
+
+    void Update()
+    {
+        Vector3 destination = isOpen ? targetPoint.position : startPos;
+
+        if (transform.position != destination)
+        {
+            transform.position = Vector3.MoveTowards(transform.position, destination, moveSpeed * Time.deltaTime);
+        }
+
+        // After moving, check for crush on all overlapping players/clones
+        if (col != null)
+        {
+            Collider2D[] hits = Physics2D.OverlapBoxAll(
+                col.bounds.center,
+                col.bounds.size,
+                0f
+            );
+
+            foreach (var hit in hits)
+            {
+                if (hit.CompareTag("Player"))
+                {
+                    PlayerController pc = hit.GetComponent<PlayerController>();
+                    if (pc != null)
+                        pc.CheckCrush();
+                }
+                else if (hit.CompareTag("Clone"))
+                {
+                    // If your clone has a similar crush check, call it here
+                    // CloneController cc = hit.GetComponent<CloneController>();
+                    // if (cc != null) cc.CheckCrush();
+                }
+            }
+        }
     }
 
     private bool IsValidCombo()
@@ -23,7 +65,6 @@ public class DoorController : MonoBehaviour, IInteractable
         if (!requireBoth || linkedButtons == null || linkedButtons.Length < 2)
             return true;
 
-        // Gather which tags are pressing each button
         List<HashSet<string>> pressedTags = new();
         foreach (var button in linkedButtons)
         {
@@ -35,11 +76,9 @@ public class DoorController : MonoBehaviour, IInteractable
             }
         }
 
-        // Must have exactly two pressed buttons
         if (pressedTags.Count != 2)
             return false;
 
-        // Flatten tags and check for two unique entities
         HashSet<string> allTags = new();
         foreach (var tags in pressedTags)
             foreach (var tag in tags)
@@ -50,11 +89,8 @@ public class DoorController : MonoBehaviour, IInteractable
 
     public void NotifyPress(string tag, float timestamp)
     {
-        Debug.Log($"Door received press from {tag} at {timestamp}, currently open: {isOpen}");
-
         if (isToggleButton)
         {
-            // Toggle door on every press
             if (isOpen)
                 CloseDoor();
             else
@@ -86,32 +122,33 @@ public class DoorController : MonoBehaviour, IInteractable
 
     private void OpenDoor()
     {
+        isOpen = true;
         if (animator != null)
             animator.SetBool("Open", true);
         if (col != null)
             col.enabled = false;
-        isOpen = true;
     }
 
     private void CloseDoor()
     {
+        isOpen = false;
         if (animator != null)
             animator.SetBool("Open", false);
         if (col != null)
             col.enabled = true;
-        isOpen = false;
     }
 
     public void ResetDoor()
     {
+        isOpen = false;
         if (animator != null)
         {
-            animator.SetBool("Open", false); // Ensure the parameter is set for future transitions
-            animator.Play("DoorIdle", 0, 0f); // Snap to the DoorIdle state
+            animator.SetBool("Open", false);
+            animator.Play("DoorIdle", 0, 0f);
         }
         if (col != null)
             col.enabled = true;
-        isOpen = false;
+        transform.position = startPos;
     }
 
     public static void ResetAllDoors()
