@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: f9fe984151a788f49a61523b5d3d5063
+guid: ca0ea4d09c7e1c947bbd37a147285329
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 1775187175044650136
-    second: trapdoor_0
+      213: 1668754776945075283
+    second: stairoff_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -113,23 +113,23 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: trapdoor_0
+      name: stairoff_0
       rect:
         serializedVersion: 2
         x: 0
         y: 0
         width: 16
-        height: 5
+        height: 4
       alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+      pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 8949d52945bb2a810800000000000000
-      internalID: 1775187175044650136
+      spriteID: 3542c01d0ab982710800000000000000
+      internalID: 1668754776945075283
       vertices: []
       indices: 
       edges: []
@@ -138,7 +138,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 8710bc2b769540c4a924c5ee41182e58
+    spriteID: 8aa438421b9963849b9ccf74677995a0
     internalID: 0
     vertices: []
     indices: 
@@ -148,7 +148,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      trapdoor_0: 1775187175044650136
+      stairoff_0: 1668754776945075283
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

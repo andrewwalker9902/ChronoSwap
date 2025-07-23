@@ -2,58 +2,41 @@ using UnityEngine;
 
 public class TrapDoorController : MonoBehaviour, IInteractable
 {
-    public float openDuration = 0.25f; // How quickly it swings open
-    private bool isOpen = false;
+    private Collider2D trapdoorCollider;
 
-    private Quaternion closedRotation;
-    private Quaternion openRotation;
-    private float lerpTime = 0f;
+    private void Awake()
+    {
+        trapdoorCollider = GetComponent<Collider2D>();
+        if (trapdoorCollider == null)
+        {
+            Debug.LogError("TrapDoorController requires a Collider component.");
+        }
+    }
 
     private void Start()
     {
-        closedRotation = transform.localRotation;
-        openRotation = Quaternion.Euler(0f, 0f, -90f); // 90° swing on Z axis
+        if (trapdoorCollider != null)
+            trapdoorCollider.enabled = true; // Solid by default
+
+        if(trapdoorCollider == null)
+            Debug.LogError("TrapDoorController: Collider is not set up correctly.");
     }
 
     public void NotifyPress(string tag, float timestamp)
     {
-        if (!isOpen)
-            StartCoroutine(SwingOpen());
+        if (trapdoorCollider != null)
+        {
+            trapdoorCollider.enabled = false; // Let objects fall through
+            Debug.Log("Trapdoor opened (collider disabled).");
+        }
     }
 
     public void NotifyRelease(string tag)
     {
-        if (isOpen)
-            StartCoroutine(SwingClose());
-    }
-
-    private System.Collections.IEnumerator SwingOpen()
-    {
-        isOpen = true;
-        lerpTime = 0f;
-
-        while (lerpTime < openDuration)
+        if (trapdoorCollider != null)
         {
-            lerpTime += Time.deltaTime;
-            float t = lerpTime / openDuration;
-            transform.localRotation = Quaternion.Lerp(closedRotation, openRotation, t);
-            yield return null;
+            trapdoorCollider.enabled = true; // Block again
+            Debug.Log("Trapdoor closed (collider enabled).");
         }
-
-        transform.localRotation = openRotation;
-    }
-
-    private System.Collections.IEnumerator SwingClose()
-    {
-        lerpTime = 0f;
-        while (lerpTime < openDuration)
-        {
-            lerpTime += Time.deltaTime;
-            float t = lerpTime / openDuration;
-            transform.localRotation = Quaternion.Lerp(openRotation, closedRotation, t);
-            yield return null;
-        }
-        transform.localRotation = closedRotation;
-        isOpen = false;
     }
 }

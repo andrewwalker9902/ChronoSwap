@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: f9fe984151a788f49a61523b5d3d5063
+guid: 11e8fe9c3209a1c44bd5aab7a64080d2
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 1775187175044650136
-    second: trapdoor_0
+      213: -7959739611316711406
+    second: fillerpiece_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -113,23 +113,23 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: trapdoor_0
+      name: fillerpiece_0
       rect:
         serializedVersion: 2
         x: 0
         y: 0
         width: 16
-        height: 5
+        height: 16
       alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+      pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 8949d52945bb2a810800000000000000
-      internalID: 1775187175044650136
+      spriteID: 2109cdafef2598190800000000000000
+      internalID: -7959739611316711406
       vertices: []
       indices: 
       edges: []
@@ -138,7 +138,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 8710bc2b769540c4a924c5ee41182e58
+    spriteID: 6c83646d216638e44bb233b3843aa60c
     internalID: 0
     vertices: []
     indices: 
@@ -148,7 +148,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      trapdoor_0: 1775187175044650136
+      fillerpiece_0: -7959739611316711406
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
