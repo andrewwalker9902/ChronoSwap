@@ -11,7 +11,6 @@ public class PlayerController : MonoBehaviour
     private bool isJumping = false;
     private float jumpTimeCounter = 0f;
 
-
     [Header("Ground Check Settings")]
     public Transform groundCheck;
     public float groundCheckRadius = 0.2f;
@@ -30,6 +29,11 @@ public class PlayerController : MonoBehaviour
     private Vector3 respawnPoint;
 
     private CameraFollow camFollow;
+
+    // --- Fall Damage Variables ---
+    private float peakYWhileAirborne;
+    private bool wasGroundedLastFrame = true;
+    private const float fallDamageThreshold = 8f; // units
 
     void Start()
     {
@@ -53,6 +57,16 @@ public class PlayerController : MonoBehaviour
         {
             HandleMovement();
         }
+
+        HandleFallDamage();
+    }
+
+    void FixedUpdate()
+    {
+        if (!isFrozen && !isControllingClone)
+        {
+            CheckCrush();
+        }
     }
 
     void HandleInputs()
@@ -69,12 +83,11 @@ public class PlayerController : MonoBehaviour
             }
         }
 
-        if (Input.GetKeyDown(KeyCode.C))
+        if (Input.GetKeyDown(KeyCode.C) && !isControllingClone)
         {
             StartClonePlayback();
         }
     }
-
 
     void EnterCloneMode()
     {
@@ -143,7 +156,6 @@ public class PlayerController : MonoBehaviour
         rb.gravityScale = 1f; // Or use `originalGravity` if you stored it
     }
 
-
     void HandleMovement()
     {
         float moveInput = Input.GetAxisRaw("Horizontal");
@@ -175,8 +187,42 @@ public class PlayerController : MonoBehaviour
         {
             isJumping = false;
         }
+    }
 
+    // --- FALL DAMAGE LOGIC ---
+    void HandleFallDamage()
+    {
+        // Update grounded state
+        bool currentlyGrounded = Physics2D.OverlapCircle(groundCheck.position, groundCheckRadius, groundLayer);
 
+        if (!currentlyGrounded)
+        {
+            // If just left the ground, record peak Y
+            if (wasGroundedLastFrame)
+            {
+                peakYWhileAirborne = transform.position.y;
+            }
+            else
+            {
+                // Update peak if player goes higher while airborne
+                if (transform.position.y > peakYWhileAirborne)
+                    peakYWhileAirborne = transform.position.y;
+            }
+        }
+        else
+        {
+            // Just landed
+            if (!wasGroundedLastFrame)
+            {
+                float fallDistance = peakYWhileAirborne - transform.position.y;
+                if (fallDistance > fallDamageThreshold)
+                {
+                    ResetPlayerAtAnchor();
+                }
+            }
+        }
+
+        wasGroundedLastFrame = currentlyGrounded;
     }
 
     public void ResetPlayerAtAnchor()
@@ -258,5 +304,4 @@ public class PlayerController : MonoBehaviour
             ResetPlayerAtAnchor();
         }
     }
-
 }

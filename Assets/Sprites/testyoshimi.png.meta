@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 91a3c83eb2671d5439cfa3744fae6f52
+guid: 1982bf588aad052489c92f26b16e7767
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 4557531739809157206
-    second: Yoshimi_Base_Sprite 1_0
+      213: 139090111466859868
+    second: testyoshimi_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -113,7 +113,7 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Yoshimi_Base_Sprite 1_0
+      name: testyoshimi_0
       rect:
         serializedVersion: 2
         x: 0
@@ -121,15 +121,15 @@ TextureImporter:
         width: 36
         height: 57
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 65094e378fa9f3f30800000000000000
-      internalID: 4557531739809157206
+      spriteID: c5d60cd28b52ee100800000000000000
+      internalID: 139090111466859868
       vertices: []
       indices: 
       edges: []
@@ -138,7 +138,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 
+    spriteID: 60b7ba132b7802046ae7ec77f464f43a
     internalID: 0
     vertices: []
     indices: 
@@ -148,7 +148,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      Yoshimi_Base_Sprite 1_0: 4557531739809157206
+      testyoshimi_0: 139090111466859868
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

@@ -89,35 +89,84 @@ public class DoorController : MonoBehaviour, IInteractable
 
     public void NotifyPress(string tag, float timestamp)
     {
+        if (requireBoth && requireTiming)
+        {
+            if (AreTwoButtonsPressedWithinWindow())
+            {
+                OpenDoor();
+                return;
+            }
+        }
+        else if (requireBoth)
+        {
+            int pressedButtonCount = 0;
+            foreach (var button in linkedButtons)
+            {
+                if (button != null && button.IsPressed())
+                    pressedButtonCount++;
+            }
+            if (pressedButtonCount < 2)
+                return; // Not enough buttons pressed
+        }
+
         if (isToggleButton)
         {
             if (isOpen)
                 CloseDoor();
             else
                 OpenDoor();
-            return;
         }
-
-        bool validCombo = IsValidCombo();
-
-        if (validCombo && !isOpen)
+        else
         {
             OpenDoor();
-        }
-        else if (!validCombo && isOpen)
-        {
-            CloseDoor();
         }
     }
 
     public void NotifyRelease(string tag)
     {
-        bool validCombo = IsValidCombo();
+        if (requireBoth && requireTiming)
+        {
+            // Optionally, you could close the door when either button is released
+            // CloseDoor();
+            return;
+        }
 
-        if (!validCombo && isOpen)
+        if (!isToggleButton)
         {
             CloseDoor();
         }
+        // Toggle: do nothing on release
+    }
+
+    // Add this helper method, mirroring AcidRainController
+    private bool AreTwoButtonsPressedWithinWindow()
+    {
+        if (linkedButtons == null || linkedButtons.Length < 2)
+            return false;
+
+        float firstTime = -1000f;
+        float secondTime = -1000f;
+        bool foundFirst = false;
+
+        foreach (var button in linkedButtons)
+        {
+            if (button != null && button.IsPressed())
+            {
+                float buttonTime = button.GetLastPressTime();
+                if (!foundFirst)
+                {
+                    firstTime = buttonTime;
+                    foundFirst = true;
+                }
+                else
+                {
+                    secondTime = buttonTime;
+                    if (Mathf.Abs(firstTime - secondTime) <= 1f) // Use a configurable window if needed
+                        return true;
+                }
+            }
+        }
+        return false;
     }
 
     private void OpenDoor()
