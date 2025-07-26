@@ -1,5 +1,4 @@
 using UnityEngine;
-using System.Collections.Generic;
 
 public class DoorController : MonoBehaviour, IInteractable
 {
@@ -9,19 +8,19 @@ public class DoorController : MonoBehaviour, IInteractable
     public bool requireBoth = false;
     public bool requireTiming = false;
     public bool isToggleButton = false;
+    
+    public float pressWindow = 1f;
 
     private Vector3 startPos;
-    private bool isMoving = false;
+    public bool isMoving = false;
     private bool isOpen = false;
 
     private Collider2D col;
-    private Animator animator;
 
     void Start()
     {
         startPos = transform.position;
         col = GetComponentInChildren<Collider2D>();
-        animator = GetComponentInChildren<Animator>();
     }
 
     void Update()
@@ -60,85 +59,85 @@ public class DoorController : MonoBehaviour, IInteractable
         }
     }
 
-    private bool IsValidCombo()
-    {
-        if (!requireBoth || linkedButtons == null || linkedButtons.Length < 2)
-            return true;
-
-        List<HashSet<string>> pressedTags = new();
-        foreach (var button in linkedButtons)
-        {
-            if (button != null && button.IsPressed())
-            {
-                var tags = button.GetActiveTags();
-                if (tags.Count > 0)
-                    pressedTags.Add(tags);
-            }
-        }
-
-        if (pressedTags.Count != 2)
-            return false;
-
-        HashSet<string> allTags = new();
-        foreach (var tags in pressedTags)
-            foreach (var tag in tags)
-                allTags.Add(tag);
-
-        return allTags.Count == 2;
-    }
-
     public void NotifyPress(string tag, float timestamp)
     {
-        if (requireBoth && requireTiming)
+        bool validCombo;
+        if (!isToggleButton)
         {
-            if (AreTwoButtonsPressedWithinWindow())
+            if (requireBoth && requireTiming)
             {
-                OpenDoor();
-                return;
+                validCombo = AreTwoButtonsPressedWithinWindow();
+            }
+            else if (requireBoth)
+            {
+                int pressedButtonCount = 0;
+                foreach (var button in linkedButtons)
+                {
+                    if (button != null && button.IsPressed())
+                        pressedButtonCount++;
+                }
+                validCombo = pressedButtonCount >= 2;
+            }
+            else
+            {
+                validCombo = true; // No requirements, always valid
+            }
+            if (validCombo && !isMoving)
+            {
+                isMoving = true;
+                isOpen = !isOpen;
             }
         }
-        else if (requireBoth)
-        {
-            int pressedButtonCount = 0;
-            foreach (var button in linkedButtons)
-            {
-                if (button != null && button.IsPressed())
-                    pressedButtonCount++;
-            }
-            if (pressedButtonCount < 2)
-                return; // Not enough buttons pressed
-        }
-
         if (isToggleButton)
         {
             if (isOpen)
-                CloseDoor();
+                isOpen = false;
             else
-                OpenDoor();
+                isOpen = true;
         }
-        else
-        {
-            OpenDoor();
-        }
+
     }
+
+
+
+    // problem with NotifyRelease, its setting isMoving to false
+    // anytime a button is released, even if the door only needs one
+    // button to open it. 
+
 
     public void NotifyRelease(string tag)
     {
-        if (requireBoth && requireTiming)
+        if (!isToggleButton && !requireTiming && !requireBoth)
         {
-            // Optionally, you could close the door when either button is released
-            // CloseDoor();
-            return;
+            bool anyPressed = false;
+            if (linkedButtons != null)
+            {
+                foreach (var button in linkedButtons)
+                {
+                    if (button != null && button.IsPressed())
+                    {
+                        anyPressed = true;
+                        break;
+                    }
+                }
+            }
+            if (!anyPressed && isMoving)
+            {
+                isMoving = false;
+                isOpen = false;
+            }
+        }
+        else
+        {
+            if (isMoving)
+            {
+                isMoving = false;
+                isOpen = false;
+            }
         }
 
-        if (!isToggleButton)
-        {
-            CloseDoor();
-        }
-        // Toggle: do nothing on release
     }
 
-    // Add this helper method, mirroring AcidRainController
     private bool AreTwoButtonsPressedWithinWindow()
     {
         if (linkedButtons == null || linkedButtons.Length < 2)
@@ -152,6 +151,7 @@ public class DoorController : MonoBehaviour, IInteractable
         {
             if (button != null && button.IsPressed())
             {
+                // Get the most recent press time for this button
                 float buttonTime = button.GetLastPressTime();
                 if (!foundFirst)
                 {
@@ -161,7 +161,8 @@ public class DoorController : MonoBehaviour, IInteractable
                 else
                 {
                     secondTime = buttonTime;
-                    if (Mathf.Abs(firstTime - secondTime) <= 1f) // Use a configurable window if needed
+                    // Check if within window
+                    if (Mathf.Abs(firstTime - secondTime) <= pressWindow)
                         return true;
                 }
             }
@@ -169,34 +170,10 @@ public class DoorController : MonoBehaviour, IInteractable
         return false;
     }
 
-    private void OpenDoor()
-    {
-        isOpen = true;
-        if (animator != null)
-            animator.SetBool("Open", true);
-        if (col != null)
-            col.enabled = false;
-    }
-
-    private void CloseDoor()
-    {
-        isOpen = false;
-        if (animator != null)
-            animator.SetBool("Open", false);
-        if (col != null)
-            col.enabled = true;
-    }
-
     public void ResetDoor()
     {
+        isMoving = false;
         isOpen = false;
-        if (animator != null)
-        {
-            animator.SetBool("Open", false);
-            animator.Play("DoorIdle", 0, 0f);
-        }
-        if (col != null)
-            col.enabled = true;
         transform.position = startPos;
     }
 

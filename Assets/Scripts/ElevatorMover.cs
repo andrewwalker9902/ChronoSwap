@@ -1,3 +1,4 @@
+using Unity.VisualScripting.Antlr3.Runtime;
 using UnityEngine;
 
 public class ElevatorMover : MonoBehaviour, IInteractable
@@ -7,6 +8,7 @@ public class ElevatorMover : MonoBehaviour, IInteractable
     public HoldButtonTrigger[] linkedButtons;
     public bool requireBoth = false;
     public bool requireTiming = false;
+    public bool isToggleButton = false;
 
     public float pressWindow = 1f;
 
@@ -61,29 +63,75 @@ public class ElevatorMover : MonoBehaviour, IInteractable
     public void NotifyPress(string tag, float timestamp)
     {
         bool validCombo;
-        if (requireBoth && requireTiming)
+        if (!isToggleButton)
         {
-            validCombo = AreTwoButtonsPressedWithinWindow();
-        }
-        else if (requireBoth)
-        {
-            int pressedButtonCount = 0;
-            foreach (var button in linkedButtons)
+            if (requireBoth && requireTiming)
             {
-                if (button != null && button.IsPressed())
-                    pressedButtonCount++;
+                validCombo = AreTwoButtonsPressedWithinWindow();
             }
-            validCombo = pressedButtonCount >= 2;
+            else if (requireBoth)
+            {
+                int pressedButtonCount = 0;
+                foreach (var button in linkedButtons)
+                {
+                    if (button != null && button.IsPressed())
+                        pressedButtonCount++;
+                }
+                validCombo = pressedButtonCount >= 2;
+            }
+            else
+            {
+                validCombo = true; // No requirements, always valid
+            }
+            if (validCombo && !isMoving)
+            {
+                isMoving = true;
+                goingUp = !goingUp;
+            }
+        }
+        if (isToggleButton)
+        {
+            if (goingUp)
+                goingUp = false; // Toggle to go down
+            else
+                goingUp = true; // Toggle to go up 
+        }
+
+
+    }
+
+    // Implements IInteractable
+    public void NotifyRelease(string tag)
+    {
+        if (!isToggleButton && !requireTiming && !requireBoth)
+        {
+            bool anyPressed = false;
+            if (linkedButtons != null)
+            {
+                foreach (var button in linkedButtons)
+                {
+                    if (button != null && button.IsPressed())
+                    {
+                        anyPressed = true;
+                        break;
+                    }
+                }
+            }
+            if (!anyPressed && isMoving)
+            {
+                isMoving = false;
+                goingUp = false;
+            }
         }
         else
         {
-            validCombo = true; // No requirements, always valid
+            if (isMoving)
+            {
+                isMoving = false;
+                goingUp = false;
+            }
         }
-        if (validCombo && !isMoving)
-        {
-            isMoving = true;
-            goingUp = !goingUp;
-        }
+
     }
 
     private bool AreTwoButtonsPressedWithinWindow()
@@ -116,17 +164,6 @@ public class ElevatorMover : MonoBehaviour, IInteractable
             }
         }
         return false;
-    }
-
-    // Implements IInteractable
-    public void NotifyRelease(string tag)
-    {
-
-        if (isMoving)
-        {
-            isMoving = false;
-            goingUp = false;
-        }
     }
 
     public void ResetElevator()

@@ -45,6 +45,10 @@ public class PauseMenuUI : MonoBehaviour
         ElevatorMover.ResetAllElevators();
         PushBoxController.ResetAllBoxPosition();
         DoorController.ResetAllDoors();
+        PistonController.ResetAllPistons();
+        AcidRainController.resetAllAcidRains();
+        TrapDoorController.resetAllTrapdoors();
+
 
         pauseMenuUI.SetActive(false);
         isPaused = false;

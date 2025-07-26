@@ -9,7 +9,7 @@ public class LevelMenu : MonoBehaviour
 
     private void Awake()
     {
-        int unlockedLevel = PlayerPrefs.GetInt("UnlockedLevel", 1); // Get the last unlocked level
+        int unlockedLevel = PlayerPrefs.GetInt("LastLevel", 1); // Get the last unlocked level
         for (int i = 0; i < levelButtons.Length; i++)
         {
             levelButtons[i].interactable = false;

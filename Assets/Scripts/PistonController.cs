@@ -1,5 +1,6 @@
-using UnityEngine;
 using System.Collections;
+using Unity.VisualScripting.Antlr3.Runtime;
+using UnityEngine;
 
 public class PistonController : MonoBehaviour, IInteractable
 {
@@ -20,6 +21,7 @@ public class PistonController : MonoBehaviour, IInteractable
 
     void Start()
     {
+
         startPos = transform.position;
         rb = GetComponent<Rigidbody2D>();
 
@@ -153,6 +155,40 @@ public class PistonController : MonoBehaviour, IInteractable
         if (rb != null && rb.linearVelocity.y > 0)
         {
             rb.linearVelocity = new Vector2(rb.linearVelocity.x, 0f);
+        }
+    }
+
+    public void ResetPiston()
+    {
+        // Stop any ongoing movement/coroutine
+        if (pistonRoutine != null)
+        {
+            StopCoroutine(pistonRoutine);
+            pistonRoutine = null;
+        }
+
+        // Move piston to starting position
+        if (rb != null)
+            rb.position = startPos;
+        else
+            transform.position = startPos;
+
+        // Reset powered state
+        poweredOn = startPoweredOn;
+
+        // Start appropriate routine
+        if (poweredOn)
+            pistonRoutine = StartCoroutine(PistonLoop());
+        else
+            pistonRoutine = StartCoroutine(ResetToStart());
+    }
+
+    public static void ResetAllPistons()
+    {
+        PistonController[] pistons = FindObjectsByType<PistonController>(FindObjectsSortMode.None);
+        foreach (var piston in pistons)
+        {
+            piston.ResetPiston();
         }
     }
 }

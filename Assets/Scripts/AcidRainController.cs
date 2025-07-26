@@ -31,50 +31,63 @@ public class AcidRainController : MonoBehaviour, IInteractable
 
     public void NotifyPress(string tag, float timestamp)
     {
-        if (requireBoth && requireTiming)
+        bool validCombo;
+        if (!isToggleButton)
         {
-            if (AreTwoButtonsPressedWithinWindow())
+            if (requireBoth && requireTiming)
             {
-                SetRainActive(false); // Turn off rain when both buttons pressed within window
-                return;
+                validCombo = AreTwoButtonsPressedWithinWindow();
+            }
+            else if (requireBoth)
+            {
+                int pressedButtonCount = 0;
+                foreach (var button in linkedButtons)
+                {
+                    if (button != null && button.IsPressed())
+                        pressedButtonCount++;
+                }
+                validCombo = pressedButtonCount >= 2;
+            }
+            else
+            {
+                validCombo = true; // No requirements, always valid
+            }
+            if (validCombo)
+            {
+                SetRainActive(false); // Deactivate acid rain
             }
         }
-        else if (requireBoth)
-        {
-            int pressedButtonCount = 0;
-            foreach (var button in linkedButtons)
-            {
-                if (button != null && button.IsPressed())
-                    pressedButtonCount++;
-            }
-            if (pressedButtonCount < 2)
-                return; // Not enough buttons pressed
-        }
-
         if (isToggleButton)
         {
-            SetRainActive(!isActive); // Toggle on press
-        }
-        else
-        {
-            SetRainActive(false); // Hold: turn off while pressed
+            SetRainActive(!isActive);
         }
     }
 
     public void NotifyRelease(string tag)
     {
-        if (requireBoth && requireTiming)
+        if (!isToggleButton && !requireTiming && !requireBoth)
         {
-            // Optionally, you could turn rain back on when either button is released
-            // SetRainActive(true);
-            return;
+            bool anyPressed = false;
+            if (linkedButtons != null)
+            {
+                foreach (var button in linkedButtons)
+                {
+                    if (button != null && button.IsPressed())
+                    {
+                        anyPressed = true;
+                        break;
+                    }
+                }
+            }
+            if (!anyPressed)
+            {
+                SetRainActive(true); // Only turn on if all buttons are released
+            }
         }
-
-        if (!isToggleButton)
+        else
         {
-            SetRainActive(true); // Hold: turn on when released
+            SetRainActive(true); // Turn on immediately for other modes
         }
-        // Toggle: do nothing on release
     }
 
     private bool AreTwoButtonsPressedWithinWindow()
@@ -90,6 +103,7 @@ public class AcidRainController : MonoBehaviour, IInteractable
         {
             if (button != null && button.IsPressed())
             {
+                // Get the most recent press time for this button
                 float buttonTime = button.GetLastPressTime();
                 if (!foundFirst)
                 {
@@ -99,6 +113,7 @@ public class AcidRainController : MonoBehaviour, IInteractable
                 else
                 {
                     secondTime = buttonTime;
+                    // Check if within window
                     if (Mathf.Abs(firstTime - secondTime) <= pressWindow)
                         return true;
                 }
@@ -143,6 +158,26 @@ public class AcidRainController : MonoBehaviour, IInteractable
             if (player != null)
             {
                 player.ResetPlayerAtAnchor();
+            }
+        }
+    }
+
+    public void resetAcidRain()
+    {
+       SetRainActive(true);
+       fadeTimer = 0f;
+        if (rainParticles != null)
+            emission.rateOverTime = 100f; // Reset emission rate
+    }
+
+    public static void resetAllAcidRains()
+    {
+        AcidRainController[] acidRains = FindObjectsByType<AcidRainController>(FindObjectsSortMode.None);
+        foreach (var acidRain in acidRains)
+        {
+            if (acidRain != null)
+            {
+                acidRain.resetAcidRain();
             }
         }
     }

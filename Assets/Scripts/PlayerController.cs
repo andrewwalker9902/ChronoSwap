@@ -239,6 +239,11 @@ public class PlayerController : MonoBehaviour
         }
 
         ElevatorMover.ResetAllElevators();
+        PushBoxController.ResetAllBoxPosition();
+        DoorController.ResetAllDoors();
+        PistonController.ResetAllPistons();
+        AcidRainController.resetAllAcidRains();
+        TrapDoorController.resetAllTrapdoors();
 
         // Reset player position
         transform.position = respawnPoint;

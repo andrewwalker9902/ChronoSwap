@@ -39,4 +39,23 @@ public class TrapDoorController : MonoBehaviour, IInteractable
             Debug.Log("Trapdoor closed (collider enabled).");
         }
     }
+
+    public void resetTrapdoor()
+    {
+        if (trapdoorCollider != null)
+        {
+            trapdoorCollider.enabled = true; // Reset to solid state
+            Debug.Log("Trapdoor reset to solid state.");
+        }
+    }
+
+    public static void resetAllTrapdoors()
+    {
+        TrapDoorController[] trapdoors = FindObjectsByType<TrapDoorController>(FindObjectsSortMode.None);
+        foreach (var trapdoor in trapdoors)
+        {
+            trapdoor.resetTrapdoor();
+        }
+        Debug.Log("All trapdoors reset to solid state.");
+    }
 }

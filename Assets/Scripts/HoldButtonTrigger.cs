@@ -5,9 +5,8 @@ public class HoldButtonTrigger : MonoBehaviour
 {
     public MonoBehaviour[] linkedObjects;
 
-    private HashSet<string> activeTags = new(); // Tracks who is pressing
+    private Dictionary<string, float> activeTagTimes = new(); // Tracks who is pressing and when
     private Animator animator;
-    private float lastPressTime = -1000f;
 
     private void Start()
     {
@@ -18,9 +17,9 @@ public class HoldButtonTrigger : MonoBehaviour
     {
         if (IsValidInteractor(other))
         {
-            if (activeTags.Add(other.tag))
+            if (!activeTagTimes.ContainsKey(other.tag))
             {
-                lastPressTime = Time.time;
+                activeTagTimes[other.tag] = Time.time;
                 if (animator != null)
                     animator.Play("RedButtonPress");
 
@@ -40,10 +39,10 @@ public class HoldButtonTrigger : MonoBehaviour
     {
         if (IsValidInteractor(other))
         {
-            if (activeTags.Remove(other.tag))
+            if (activeTagTimes.Remove(other.tag))
             {
-                if (activeTags.Count == 0 && animator != null)
-                { 
+                if (activeTagTimes.Count == 0 && animator != null)
+                {
                     animator.Play("RedButtonRelease");
 
                     foreach (var obj in linkedObjects)
@@ -61,42 +60,47 @@ public class HoldButtonTrigger : MonoBehaviour
 
     public float GetLastPressTime()
     {
-        return lastPressTime;
+        // Return the most recent press time among all active tags
+        float latest = -1000f;
+        foreach (var t in activeTagTimes.Values)
+        {
+            if (t > latest)
+                latest = t;
+        }
+        return latest;
+    }
+
+    public List<float> GetAllPressTimes()
+    {
+        return new List<float>(activeTagTimes.Values);
     }
 
     private bool IsValidInteractor(Collider2D other)
     {
         if (other.CompareTag("Player"))
-        {
-            // Always allow the player, even if frozen
             return true;
-        }
         if (other.CompareTag("PushBox"))
             return true;
-        else if (other.CompareTag("Clone"))
+        if (other.CompareTag("Clone"))
         {
             var controller = other.GetComponent<CloneController>();
             if (controller != null && controller.isPlayingBack)
-            {
-                // Only allow clone interaction during playback
                 return true;
-            }
         }
-
         return false;
     }
 
     public bool IsPressed()
     {
-        return activeTags.Count > 0;
+        return activeTagTimes.Count > 0;
     }
 
     public HashSet<string> GetActiveTags()
     {
-        return new HashSet<string>(activeTags);
+        return new HashSet<string>(activeTagTimes.Keys);
     }
 
-    public bool HasPlayer() => activeTags.Contains("Player");
-    public bool HasClone() => activeTags.Contains("Clone");
-    public bool HasPushBox() => activeTags.Contains("PushBox");
+    public bool HasPlayer() => activeTagTimes.ContainsKey("Player");
+    public bool HasClone() => activeTagTimes.ContainsKey("Clone");
+    public bool HasPushBox() => activeTagTimes.ContainsKey("PushBox");
 }

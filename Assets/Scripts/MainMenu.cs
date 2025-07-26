@@ -5,7 +5,8 @@ public class MainMenu : MonoBehaviour
 {
     public void NewGame()
     {
-        PlayerPrefs.SetInt("LastLevel", 1);
+        PlayerPrefs.DeleteKey("LastLevel");
+        PlayerPrefs.Save();
         SceneManager.LoadScene("Level1");
     }
 
